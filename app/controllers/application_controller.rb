@@ -1,8 +1,14 @@
 class ApplicationController < ActionController::Base
   before_action :authenticate_user!, unless: :devise_controller?
   before_action :basic_auth
+  before_action :configure_permitted_parameters, if: :devise_controller?
 
   private
+
+  def configure_permitted_parameters
+    # サインアップ時にnameカラムを許容する
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
+  end
 
   def basic_auth
     # ログ出力（RenderのLogsで確認してください）
@@ -12,12 +18,6 @@ class ApplicationController < ActionController::Base
 
     authenticate_or_request_with_http_basic do |username, password|
       # 比較処理
-      username == ENV['BASIC_AUTH_USER'] && password == ENV['BASIC_AUTH_PASSWORD']
-    end
-  end
-
-  def basic_auth
-    authenticate_or_request_with_http_basic do |username, password|
       username == ENV['BASIC_AUTH_USER'] && password == ENV['BASIC_AUTH_PASSWORD']
     end
   end
